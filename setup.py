@@ -13,7 +13,9 @@ setup(
     author_email='veit@blueshoe.de',
     description='Utils around keycloak and other oidc clients.',
     long_description=io.open('README.md', encoding='utf-8').read() if exists("README.md") else "",
-    packages=find_packages(),
+    packages=[
+        "pycloak",
+    ],
     install_requires=[
         'Django>=2.2',
         'PyJWT~=2.1.0',
