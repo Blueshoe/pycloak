@@ -18,8 +18,6 @@ class JWTBackend(ModelBackend):
         }
         UserModel = get_user_model()
         user, _ = UserModel.objects.update_or_create(**{UserModel.USERNAME_FIELD: username}, defaults=defaults)
-        user.set_unusable_password()
-        user.save()
         user.backend = "pycloak.auth.JWTBackend"
         return user
 

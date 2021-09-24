@@ -21,11 +21,11 @@ class JWTMiddleware(MiddlewareMixin):
                 # 3. authenticate user with jwt data
                 user = authenticate(request, jwt_data=jwt_data)
             except Exception as e:
-                if self.allow_default_login(request):
-                    return
-                return HttpResponse(status=UNAUTHORIZED)
+                if not self.allow_default_login(request):
+                    return HttpResponse(status=UNAUTHORIZED)
             else:
-                login(request, user)
+                if user:
+                    login(request, user)
 
     def get_verify(self, request) -> bool:
         return bool(self.get_algorithms(request) and self.get_audience(request))
