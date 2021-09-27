@@ -52,6 +52,9 @@ There are a couple of other settings that can be used to modify the behaviour. T
 PYCLOAK_ALGORITHM = None  # could be for instance: "RS256"
 PYCLOAK_AUDIENCE = None
 
+# header that transports the JWT; use HTTP_AUTHORIZATION for Bearer authentication
+PYCLOAK_TOKEN_HEADER = "HTTP_X_FORWARDED_ACCESS_TOKEN"
+
 # if token decoding or authentication fails, do nothing
 PYCLOAK_ALLOW_DEFAULT_LOGIN = True
 

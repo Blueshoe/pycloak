@@ -11,7 +11,7 @@ setup(
     version=__version__,
     author='Blueshoe',
     author_email='veit@blueshoe.de',
-    description='Utils around keycloak and other oidc clients.',
+    description='Utils around Keycloak and other OIDC clients.',
     long_description=io.open('README.md', encoding='utf-8').read() if exists("README.md") else "",
     packages=[
         "pycloak",
@@ -23,7 +23,6 @@ setup(
     python_requires='>=3.8',
     include_package_data=True,
     scripts=[],
-    url='https://gitlab.blueshoe.de/loyalty-engine/client-sdk',
     license='Copyright',
     classifiers=[
         # 'Development Status :: 5 - Production/Stable',

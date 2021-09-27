@@ -37,10 +37,14 @@ class JWTMiddleware(MiddlewareMixin):
         return [getattr(settings, "PYCLOAK_ALGORITHM", None)]
 
     def get_jwt_from_request(self, request) -> str:
-        auth_header = request.META["HTTP_AUTHORIZATION"]
-        auth_type, jwt = auth_header.split(" ")
-        if auth_type != "Bearer":
-            raise ValueError("No Bearer token")
+        token_header = getattr(settings, "PYCLOAK_TOKEN_HEADER", "HTTP_X_FORWARDED_ACCESS_TOKEN")
+        header_value = request.META[token_header]
+        if token_header == "HTTP_AUTHORIZATION":
+            auth_type, jwt = header_value.split(" ")
+            if auth_type != "Bearer":
+                raise ValueError("No Bearer token")
+        else:
+            jwt = header_value
         return jwt
 
     def get_data_from_jwt(self, request, jwt) -> dict:
