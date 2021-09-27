@@ -1,3 +1,4 @@
+import logging
 from http.client import UNAUTHORIZED
 from typing import List
 
@@ -6,6 +7,9 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
 from jwt import decode
+
+
+logger = logging.getLogger(__name__)
 
 
 class JWTMiddleware(MiddlewareMixin):
@@ -21,6 +25,8 @@ class JWTMiddleware(MiddlewareMixin):
                 # 3. authenticate user with jwt data
                 user = authenticate(request, jwt_data=jwt_data)
             except Exception as e:
+                logger.exception(f"Token auth failed: {e}")
+                logger.debug(f"{request.META}")
                 if not self.allow_default_login(request):
                     return HttpResponse(status=UNAUTHORIZED)
             else:
