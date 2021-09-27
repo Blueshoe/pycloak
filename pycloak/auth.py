@@ -31,7 +31,7 @@ class JWTBackend(ModelBackend):
         user.groups.set(Group.objects.filter(name__in=token_roles))
 
     def get_username(self, request, jwt_data: dict) -> str:
-        return jwt_data[getattr(settings, "PYCLOAK_USERNAME_CLAIM", "sub")]
+        return jwt_data[getattr(settings, "PYCLOAK_USERNAME_CLAIM", "preferred_username")]
 
     def get_email(self, request, jwt_data: dict) -> str:
         return jwt_data[getattr(settings, "PYCLOAK_EMAIL_CLAIM", "email")]
