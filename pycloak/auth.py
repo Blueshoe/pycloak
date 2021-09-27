@@ -52,7 +52,11 @@ class JWTBackend(ModelBackend):
             set(getattr(settings, "PYCLOAK_SUPERUSER_ROLES", [])).intersection(token_roles))
 
     def get_roles(self, request, jwt_data: dict) -> List[str]:
-        realm_roles = jwt_data.get("realm_access", {}).get("roles", [])
+        return self.get_realm_roles(request, jwt_data) + self.get_client_roles(request, jwt_data)
+
+    def get_realm_roles(self, request, jwt_data: dict):
+        return jwt_data.get("realm_access", {}).get("roles", [])
+
+    def get_client_roles(self, request, jwt_data: dict):
         client_id = getattr(settings, "PYCLOAK_CLIENT_ID", None)
-        client_roles = jwt_data.get("resource_access", {}).get(client_id, {}).get("roles", [])
-        return realm_roles + client_roles
+        return jwt_data.get("resource_access", {}).get(client_id, {}).get("roles", [])
