@@ -59,10 +59,13 @@ PYCLOAK_TOKEN_HEADER = "HTTP_X_FORWARDED_ACCESS_TOKEN"
 PYCLOAK_ALLOW_DEFAULT_LOGIN = True
 
 # claims to use for populating user model 
-PYCLOAK_USERNAME_CLAIM = "sub"
+PYCLOAK_USERNAME_CLAIM = "preferred_username"
 PYCLOAK_FIRSTNAME_CLAIM = "given_name"
 PYCLOAK_LASTNAME_CLAIM = "family_name"
 PYCLOAK_EMAIL_CLAIM = "email"
+
+# client_id. Only "resource_access" roles of this client will be considered 
+PYCLOAK_CLIENT_ID = "account"
 
 # roles that escalate user privileges
 # they are read from jwt["realm_access"]["roles"] and 
