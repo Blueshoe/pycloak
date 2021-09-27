@@ -1,3 +1,6 @@
+0.0.7 (2021-09-27)
+------------------
+* Fixes bug where superusers might not be staff users
 
 0.0.6 (2021-09-27)
 ------------------

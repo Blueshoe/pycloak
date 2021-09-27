@@ -10,12 +10,14 @@ class JWTBackend(ModelBackend):
     def authenticate(self, request, jwt_data: dict = None):
         # 1. get/create/update user
         username = self.get_username(request, jwt_data)
+        is_staff = self.get_is_staff(request, jwt_data)
+        is_superuser = self.get_is_superuser(request, jwt_data)
         defaults = {
             "email": self.get_email(request, jwt_data),
             "first_name": self.get_firstname(request, jwt_data),
             "last_name": self.get_lastname(request, jwt_data),
-            "is_staff": self.get_is_staff(request, jwt_data),
-            "is_superuser": self.get_is_superuser(request, jwt_data),
+            "is_staff": is_staff or is_superuser,
+            "is_superuser": is_superuser,
         }
         UserModel = get_user_model()
         user, _ = UserModel.objects.update_or_create(**{UserModel.USERNAME_FIELD: username}, defaults=defaults)
