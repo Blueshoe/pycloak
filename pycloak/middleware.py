@@ -26,7 +26,6 @@ class JWTMiddleware(MiddlewareMixin):
                 user = authenticate(request, jwt_data=jwt_data)
             except Exception as e:
                 logger.exception(f"Token auth failed: {e}")
-                logger.debug(f"{request.META}")
                 if not self.allow_default_login(request):
                     return HttpResponse(status=UNAUTHORIZED)
             else:
@@ -51,6 +50,7 @@ class JWTMiddleware(MiddlewareMixin):
                 raise ValueError("No Bearer token")
         else:
             jwt = header_value
+        logger.debug(f"{jwt}")
         return jwt
 
     def get_data_from_jwt(self, request, jwt) -> dict:
@@ -58,11 +58,13 @@ class JWTMiddleware(MiddlewareMixin):
             "verify_signature": self.get_verify(request),
             "audience": self.get_audience(request),
         }
-        return decode(
+        data = decode(
             jwt,
             algorithms=self.get_algorithms(request),
             options=options
         )
+        logger.debug(f"{data}")
+        return data
 
     def allow_default_login(self, request) -> bool:
         return getattr(settings, "PYCLOAK_ALLOW_DEFAULT_LOGIN", True)
