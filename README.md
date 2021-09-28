@@ -1,5 +1,25 @@
 # pycloak
 
+## Abstract
+When creating service-oriented platforms with django, the redundant user management becomes an unneeded overhead.
+Hence, a central user and permission management with secure authorization is required. We'd like to use standard
+components all over and only use django for the domain specific implementations. That is following the trend to
+push implementation details to the infrastructure.
+
+This project contains utilities for django to support the following architecture. In this usecase django is not required
+to authorize or validate the token as this is already done. Django can extract the user's information (i.e. profile and
+group memberships) and other claims and work with it right away.
+
+![Pycloak Architecture](docs/static/img/pycloak-arch.png?raw=true "Architecture")
+
+This setup contains a couple of standard components, such as the JWT issuer, for instance 
+[Keycloak](https://www.keycloak.com) or any social login provider. The token validation and authorization 
+(like e-mail domain, profile information, group membership) is done by a specialized reverse proxy, such as the
+[OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/). Of course there are plenty of other OpenID Connect/OAuth2
+products available on the market.
+
+
+
 ## Auth backend
 Add `pycloak.auth.JWTBackend` to your `AUTHENTICATION_BACKENDS` setting, e.g.:
 
