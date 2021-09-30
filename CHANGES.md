@@ -1,3 +1,7 @@
+0.0.8 (2021-09-30)
+------------------
+* Stores token id in session to verify previous logins against current access token
+
 0.0.7 (2021-09-27)
 ------------------
 * Fixes bug where superusers might not be staff users
