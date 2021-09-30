@@ -62,6 +62,7 @@ get_algorithms(self, request) -> List[str]
 get_jwt_from_request(self, request) -> str  # extract the raw token from the request
 get_data_from_jwt(self, request, jwt) -> dict  # decode the raw token
 allow_default_login(self, request) -> bool
+def get_token_id(self, request, jwt_data) -> str
 ```
 
 ## Other settings
@@ -83,6 +84,12 @@ PYCLOAK_USERNAME_CLAIM = "preferred_username"
 PYCLOAK_FIRSTNAME_CLAIM = "given_name"
 PYCLOAK_LASTNAME_CLAIM = "family_name"
 PYCLOAK_EMAIL_CLAIM = "email"
+
+# claim used to identify tokens and expire sessions
+PYCLOAK_TOKENID_LOGIN = "jti"
+
+# key used to store token id in session
+PYCLOAK_SESSION_KEY = "_pycloak_token_id"
 
 # client_id. Only "resource_access" roles of this client will be considered 
 PYCLOAK_CLIENT_ID = "account"
