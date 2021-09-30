@@ -21,7 +21,7 @@ class JWTMiddleware(MiddlewareMixin):
                 
     def process_token(self, request) -> bool:
         """
-        Return True
+        Return True if there is a logged in and authenticated user when this function returns
         """
 
         # if a token is present, make sure that token is or has been used for authentication
@@ -31,7 +31,8 @@ class JWTMiddleware(MiddlewareMixin):
         try:
             jwt = self.get_jwt_from_request(request)
         except (ValueError, KeyError) as e:
-            # no token, accept other options of authentication
+            # no token, but accept other options of authentication
+            request.session.pop(conf.SESSION_KEY, None)
             return request.user.is_authenticated
 
         # 2. get payload from jwt
