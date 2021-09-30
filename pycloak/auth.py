@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Group
 
+from .config import conf
+
 
 class JWTBackend(ModelBackend):
     def authenticate(self, request, jwt_data: dict = None):
@@ -33,25 +35,24 @@ class JWTBackend(ModelBackend):
         user.groups.set(Group.objects.filter(name__in=token_roles))
 
     def get_username(self, request, jwt_data: dict) -> str:
-        return jwt_data[getattr(settings, "PYCLOAK_USERNAME_CLAIM", "preferred_username")]
+        return jwt_data[conf.USERNAME_CLAIM]
 
     def get_email(self, request, jwt_data: dict) -> str:
-        return jwt_data[getattr(settings, "PYCLOAK_EMAIL_CLAIM", "email")]
+        return jwt_data[conf.EMAIL_CLAIM]
 
     def get_firstname(self, request, jwt_data: dict) -> str:
-        return jwt_data[getattr(settings, "PYCLOAK_FIRSTNAME_CLAIM", "given_name")]
+        return jwt_data[conf.FIRSTNAME_CLAIM]
 
     def get_lastname(self, request, jwt_data: dict) -> str:
-        return jwt_data[getattr(settings, "PYCLOAK_LASTNAME_CLAIM", "family_name")]
+        return jwt_data[conf.LASTNAME_CLAIM]
 
     def get_is_staff(self, request, jwt_data: dict) -> bool:
         token_roles = self.get_roles(request, jwt_data)
-        return bool(set(getattr(settings, "PYCLOAK_STAFF_ROLES", [])).intersection(token_roles))
+        return bool(set(conf.STAFF_ROLES).intersection(token_roles))
 
     def get_is_superuser(self, request, jwt_data: dict) -> bool:
         token_roles = self.get_roles(request, jwt_data)
-        return bool(
-            set(getattr(settings, "PYCLOAK_SUPERUSER_ROLES", [])).intersection(token_roles))
+        return bool(set(conf.SUPERUSER_ROLES).intersection(token_roles))
 
     def get_roles(self, request, jwt_data: dict) -> List[str]:
         return self.get_realm_roles(request, jwt_data) + self.get_client_roles(request, jwt_data)
@@ -62,3 +63,6 @@ class JWTBackend(ModelBackend):
     def get_client_roles(self, request, jwt_data: dict):
         client_id = getattr(settings, "PYCLOAK_CLIENT_ID", None)
         return jwt_data.get("resource_access", {}).get(client_id, {}).get("roles", [])
+
+    def get_expiration(self, request, jwt_data: dict):
+        return jwt_data["exp"]
