@@ -1,4 +1,4 @@
-import logging
+
 from http.client import UNAUTHORIZED
 from typing import List
 
@@ -9,7 +9,13 @@ from jwt import decode, InvalidTokenError
 
 from .config import conf
 
-logger = logging.getLogger(__name__)
+
+try:
+    import structlog
+    logger = structlog.get_logger(__name__)
+except ImportError:
+    import logging
+    logger = logging.getLogger(__name__)
 
 
 class JWTMiddleware(MiddlewareMixin):
@@ -27,11 +33,14 @@ class JWTMiddleware(MiddlewareMixin):
         # if a token is present, make sure that token is or has been used for authentication
         # if not, let an existing login persist
 
+        logger.debug(f"start process_token", headers=request.headers.keys(), config=conf.to_dict())
+
         # 1. get token from request
         try:
             jwt = self.get_jwt_from_request(request)
         except (ValueError, KeyError) as e:
             # no token, but accept other options of authentication
+            logger.warning("No jwt retrieved.")
             request.session.pop(conf.SESSION_KEY, None)
             return request.user.is_authenticated
 
@@ -39,16 +48,20 @@ class JWTMiddleware(MiddlewareMixin):
         try:
             jwt_data = self.get_data_from_jwt(request, jwt)
         except InvalidTokenError as e:
-            logger.exception(f"Token decoding failed: {e}")
+            logger.exception("Token decoding failed", error=str(e))
             return False
 
         # 3. if the user is authenticated, check the token id is the one from the session
         id_from_token = self.get_token_id(request, jwt_data)
+        logger.debug("Token id read", request_token_id=id_from_token)
         if request.user.is_authenticated:
             id_from_session = request.session.get(conf.SESSION_KEY, None)
+            logger.debug("Session token id read", session_token_id=id_from_session)
             if id_from_token == id_from_session:
+                logger.debug("Id match, session still valid")
                 return True
             else:
+                logger.info("Id mismatch, logging out")
                 logout(request)
                 # no further action, let the authentication go on with the new token
 
@@ -56,15 +69,17 @@ class JWTMiddleware(MiddlewareMixin):
         try:
             user = authenticate(request, jwt_data=jwt_data)
         except Exception as e:
-            logger.exception(f"Token authentication failed: {e}")
+            logger.exception("Token authentication failed", error=str(e))
             return False
 
         # 5. login user
         if user:
+            logger.info("Logging user in", user=str(user))
             login(request, user)
             request.session[conf.SESSION_KEY] = id_from_token
             return True
         else:
+            logger.warning("No user found, no login")
             return False
 
     def get_verify(self, request) -> bool:
@@ -80,12 +95,14 @@ class JWTMiddleware(MiddlewareMixin):
         token_header = conf.TOKEN_HEADER
         header_value = request.META[token_header]
         if token_header == "HTTP_AUTHORIZATION":
+            logger.debug("Bearer token")
             auth_type, jwt = header_value.split(" ")
             if auth_type != "Bearer":
                 raise ValueError("No Bearer token")
         else:
+            logger.debug("Header token")
             jwt = header_value
-        logger.debug(f"{jwt}")
+        logger.debug("Raw token retrieved", raw_token=jwt)
         return jwt
 
     def get_data_from_jwt(self, request, jwt) -> dict:
@@ -98,7 +115,7 @@ class JWTMiddleware(MiddlewareMixin):
             algorithms=self.get_algorithms(request),
             options=options
         )
-        logger.debug(f"{data}")
+        logger.debug("jwt decoded", jwt_data=data)
         return data
 
     def allow_default_login(self, request) -> bool:
