@@ -19,7 +19,7 @@ class _PycloakConfiguration:
 
     def to_dict(self):
         return {
-            k: v for k, v in self.__dict__ if k.isupper()
+            k: v for k, v in self.__dict__.items() if k.isupper()
         }
 
     def __str__(self):
