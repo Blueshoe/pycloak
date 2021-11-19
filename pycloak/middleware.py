@@ -117,6 +117,7 @@ class JWTMiddleware(MiddlewareMixin):
             options=options
         )
         logger.debug("jwt decoded", jwt_data=data)
+        request.jwt_data = data
         return data
 
     def allow_default_login(self, request) -> bool:
