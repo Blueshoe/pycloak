@@ -1,4 +1,17 @@
-0.0.8 (2021-09-30)
+0.0.11 (2021-11-19)
+-------------------
+* Stores raw token and decoded data as attributes on request 
+
+0.0.10 (2021-11-15)
+-------------------
+* Bugfixes 
+
+0.0.9 (2021-11-15)
+------------------
+* Adds structlog support
+* Adds more debug logging
+
+* 0.0.8 (2021-09-30)
 ------------------
 * Stores token id in session to verify previous logins against current access token
 
