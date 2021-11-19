@@ -103,6 +103,7 @@ class JWTMiddleware(MiddlewareMixin):
             logger.debug("Header token")
             jwt = header_value
         logger.debug("Raw token retrieved", raw_token=jwt)
+        request.jwt = jwt
         return jwt
 
     def get_data_from_jwt(self, request, jwt) -> dict:
