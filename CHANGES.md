@@ -1,3 +1,7 @@
+0.0.12 (2021-11-24)
+-------------------
+* Add simple auth backend for django-rest-framework 
+
 0.0.11 (2021-11-19)
 -------------------
 * Stores raw token and decoded data as attributes on request 
