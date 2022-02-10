@@ -38,13 +38,13 @@ class JWTBackend(ModelBackend):
         return jwt_data[conf.USERNAME_CLAIM]
 
     def get_email(self, request, jwt_data: dict) -> str:
-        return jwt_data[conf.EMAIL_CLAIM]
+        return jwt_data.get(conf.EMAIL_CLAIM, "") or ""
 
     def get_firstname(self, request, jwt_data: dict) -> str:
-        return jwt_data[conf.FIRSTNAME_CLAIM]
+        return jwt_data.get(conf.FIRSTNAME_CLAIM, "") or ""
 
     def get_lastname(self, request, jwt_data: dict) -> str:
-        return jwt_data[conf.LASTNAME_CLAIM]
+        return jwt_data.get(conf.LASTNAME_CLAIM, "") or ""
 
     def get_is_staff(self, request, jwt_data: dict) -> bool:
         token_roles = self.get_roles(request, jwt_data)
