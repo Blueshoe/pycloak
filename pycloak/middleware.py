@@ -47,7 +47,7 @@ class JWTMiddleware(MiddlewareMixin):
         # 2. get payload from jwt
         try:
             jwt_data = self.get_data_from_jwt(request, jwt)
-        except InvalidTokenError as e:
+        except (InvalidTokenError, ValueError) as e:
             logger.exception("Token decoding failed", error=str(e))
             return False
 
