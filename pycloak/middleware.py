@@ -115,11 +115,11 @@ class JWTMiddleware(MiddlewareMixin):
         options = {
             "verify_signature": self.get_verify(request),
             "audience": self.get_audience(request),
-            "key": self.get_public_key(request),
         }
         data = decode(
             jwt,
             algorithms=self.get_algorithms(request),
+            key=self.get_public_key(request),
             options=options
         )
         logger.debug("jwt decoded", jwt_data=data)
