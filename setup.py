@@ -4,7 +4,7 @@ import io
 from os.path import exists
 from setuptools import setup, find_packages
 
-__version__ = "0.0.15"
+__version__ = "0.0.16"
 
 setup(
     name='pycloak',
