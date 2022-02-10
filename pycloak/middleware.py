@@ -83,7 +83,10 @@ class JWTMiddleware(MiddlewareMixin):
             return False
 
     def get_verify(self, request) -> bool:
-        return bool(self.get_algorithms(request) and self.get_audience(request))
+        return bool(self.get_algorithms(request) and self.get_audience(request) and self.get_public_key(request))
+
+    def get_public_key(self, request) -> str:
+        return conf.PUBLIC_KEY
 
     def get_audience(self, request) -> str:
         return conf.AUDIENCE
@@ -110,6 +113,7 @@ class JWTMiddleware(MiddlewareMixin):
         options = {
             "verify_signature": self.get_verify(request),
             "audience": self.get_audience(request),
+            "key": self.get_public_key(request),
         }
         data = decode(
             jwt,

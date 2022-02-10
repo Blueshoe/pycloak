@@ -58,6 +58,7 @@ The middleware can also be subclassed with the following hooks:
 ```
 get_verify(self, request) -> bool
 get_audience(self, request) -> str
+get_public_key(self, request) -> str
 get_algorithms(self, request) -> List[str]
 get_jwt_from_request(self, request) -> str  # extract the raw token from the request
 get_data_from_jwt(self, request, jwt) -> dict  # decode the raw token
@@ -69,9 +70,10 @@ def get_token_id(self, request, jwt_data) -> str
 There are a couple of other settings that can be used to modify the behaviour. They are shown with their default values:
 
 ```python
-# if these two are set, the jwt will be verified
+# if these three are set, the jwt will be verified
 PYCLOAK_ALGORITHM = None  # could be for instance: "RS256"
 PYCLOAK_AUDIENCE = None
+PYCLOAK_PUBLIC_KEY = None  # public key can be exported from keycloak (realm settings > keys > public keys)
 
 # header that transports the JWT; use HTTP_AUTHORIZATION for Bearer authentication
 PYCLOAK_TOKEN_HEADER = "HTTP_X_FORWARDED_ACCESS_TOKEN"

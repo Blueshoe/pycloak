@@ -5,6 +5,7 @@ class _PycloakConfiguration:
     def __init__(self):
         self.ALGORITHM = getattr(settings, "PYCLOAK_ALGORITHM", None)
         self.AUDIENCE = getattr(settings, "PYCLOAK_AUDIENCE", None)
+        self.PUBLIC_KEY = getattr(settings, "PYCLOAK_PUBLIC_KEY", None)  # can be exported from keyclaok realm
         self.TOKEN_HEADER = getattr(settings, "PYCLOAK_TOKEN_HEADER", "HTTP_X_FORWARDED_ACCESS_TOKEN")
         self.CLIENT_ID = getattr(settings, "PYCLOAK_CLIENT_ID", "account")
         self.ALLOW_DEFAULT_LOGIN = getattr(settings, "PYCLOAK_ALLOW_DEFAULT_LOGIN", False)
