@@ -1,4 +1,5 @@
-
+from base64 import b64decode
+from cryptography.hazmat.primitives import serialization
 from http.client import UNAUTHORIZED
 from typing import List
 
@@ -87,8 +88,12 @@ class JWTMiddleware(MiddlewareMixin):
     def get_verify(self, request) -> bool:
         return bool(self.get_algorithms(request) and self.get_audience(request) and self.get_public_key(request))
 
-    def get_public_key(self, request) -> str:
-        return conf.PUBLIC_KEY
+    def get_public_key(self, request):
+        key = conf.PUBLIC_KEY
+        if key:
+            key_der = b64decode(key.encode())
+            public_key = serialization.load_der_public_key(key_der)
+            return public_key
 
     def get_audience(self, request) -> str:
         return conf.AUDIENCE
@@ -114,12 +119,12 @@ class JWTMiddleware(MiddlewareMixin):
     def get_data_from_jwt(self, request, jwt) -> dict:
         options = {
             "verify_signature": self.get_verify(request),
-            "audience": self.get_audience(request),
         }
         data = decode(
             jwt,
             algorithms=self.get_algorithms(request),
             key=self.get_public_key(request),
+            audience=self.get_audience(request),
             options=options
         )
         logger.debug("jwt decoded", jwt_data=data)

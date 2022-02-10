@@ -19,6 +19,7 @@ setup(
     install_requires=[
         'Django>=2.2',
         'PyJWT~=2.1.0',
+        'cryptography~=36.0.1',
     ],
     python_requires='>=3.8',
     include_package_data=True,
