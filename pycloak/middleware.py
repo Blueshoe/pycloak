@@ -60,10 +60,6 @@ class JWTMiddleware(MiddlewareMixin):
             if id_from_token == id_from_session:
                 logger.debug("Id match, session still valid")
                 return True
-            else:
-                logger.info("Id mismatch, logging out")
-                logout(request)
-                # no further action, let the authentication go on with the new token
 
         # 4. authenticate user with jwt data
         try:
@@ -74,9 +70,15 @@ class JWTMiddleware(MiddlewareMixin):
 
         # 5. login user
         if user:
-            logger.info("Logging user in", user=str(user))
-            login(request, user)
             request.session[conf.SESSION_KEY] = id_from_token
+            if request.user != user:
+                logger.info("Different user, logging out")
+                logout(request)
+            if not request.user.is_authenticated:
+                logger.info("Logging user in", user=str(user))
+                login(request, user)
+            else:  # the same user with a new token
+                request.user = user  # be sure this is the updated object as per the new token
             return True
         else:
             logger.warning("No user found, no login")
