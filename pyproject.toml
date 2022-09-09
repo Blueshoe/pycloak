@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "pycloak"
+version = "0.0.17"
+description = "Utils around Keycloak and other OIDC clients."
+readme = "README.md"
+authors = ["Blueshoe GmbH"]
+license = "Copyright"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+Django = ">=2.2"
+PyJWT = ">=2.4.0"
+cryptography = ">=36.0.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
