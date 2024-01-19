@@ -75,6 +75,9 @@ PYCLOAK_ALGORITHM = None  # could be for instance: "RS256"
 PYCLOAK_AUDIENCE = None
 PYCLOAK_PUBLIC_KEY = None  # public key can be exported from keycloak (realm settings > keys > public keys)
 
+# if set, the issuer will be checked against this value
+PYCLOAK_ISSUER = None 
+
 # header that transports the JWT; use HTTP_AUTHORIZATION for Bearer authentication
 PYCLOAK_TOKEN_HEADER = "HTTP_X_FORWARDED_ACCESS_TOKEN"
 

@@ -1,15 +1,15 @@
+import time
 from base64 import b64decode
-from cryptography.hazmat.primitives import serialization
 from http.client import UNAUTHORIZED
 from typing import List
 
+from cryptography.hazmat.primitives import serialization
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
-from jwt import decode, InvalidTokenError
+from jwt import ExpiredSignatureError, InvalidTokenError, decode
 
 from .config import conf
-
 
 try:
     import structlog
@@ -41,7 +41,7 @@ class JWTMiddleware(MiddlewareMixin):
             jwt = self.get_jwt_from_request(request)
         except (ValueError, KeyError) as e:
             # no token, but accept other options of authentication
-            logger.warning("No jwt retrieved.")
+            logger.warning("No jwt retrieved")
             request.session.pop(conf.SESSION_KEY, None)
             return request.user.is_authenticated
 
@@ -51,8 +51,24 @@ class JWTMiddleware(MiddlewareMixin):
         except (InvalidTokenError, ValueError) as e:
             logger.exception("Token decoding failed", error=str(e))
             return False
+        except ExpiredSignatureError:
+            # this can be raised, when the token is decoded with verify_signature=True
+            logger.warning("Token has expired")
+            return False
 
-        # 3. if the user is authenticated, check the token id is the one from the session
+        # 3. check if the token is expired
+        # this is implicitly done, when the token is decoded with verify_signature=True
+        if jwt_data.get("exp", 0) < time.time():
+            logger.warning("Token has expired")
+            return False
+
+        # 4. check if the token is issued by the configured issuer
+        iss = jwt_data.get("iss", "")
+        if iss and conf.ISSUER and (iss != conf.ISSUER):
+            logger.warning("Token issuer mismatch")
+            return False
+
+        # 5. if the user is authenticated, check the token id is the one from the session
         id_from_token = self.get_token_id(request, jwt_data)
         logger.debug("Token id read", request_token_id=id_from_token)
         if request.user.is_authenticated:
@@ -62,14 +78,14 @@ class JWTMiddleware(MiddlewareMixin):
                 logger.debug("Id match, session still valid")
                 return True
 
-        # 4. authenticate user with jwt data
+        # 6. authenticate user with jwt data
         try:
             user = authenticate(request, jwt_data=jwt_data)
         except Exception as e:
             logger.exception("Token authentication failed", error=str(e))
             return False
 
-        # 5. login user
+        # 7. login user
         if user:
             request.session[conf.SESSION_KEY] = id_from_token
             if request.user != user:
