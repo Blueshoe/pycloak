@@ -1,5 +1,6 @@
 from builtins import hasattr
 
+
 try:
     from rest_framework.authentication import SessionAuthentication
 
@@ -8,5 +9,6 @@ try:
             if hasattr(request, "jwt"):
                 return
             return super(CsrfExemptSessionAuthentication, self).enforce_csrf(request)
+
 except ImportError:
     pass
