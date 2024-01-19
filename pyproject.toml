@@ -7,13 +7,30 @@ authors = ["Blueshoe GmbH"]
 license = "Copyright"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8.1"
 Django = ">=2.2"
 PyJWT = ">=2.4.0"
 cryptography = ">=36.0.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.1"
+flake8 = "^7.0.0"
+mypy = "^1.8.0"
+poethepoet = "^0.24.4"
+isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poe]
+include = "tasks.toml" # include tasks from tasks.toml
+
+[tool.mypy]
+mypy_path = "luma"
+warn_return_any = "True"
+warn_unused_configs = "True"
+exclude = [
+    "tests",
+]
+ignore_missing_imports = "True"

@@ -17,6 +17,7 @@ class _PycloakConfiguration:
         "SUPERUSER_ROLES": [],
         "TOKENID_CLAIM": "jti",
         "SESSION_KEY": "_pycloak_token_id",
+        "ISSUER": None,
     }
 
     def __getattr__(self, item):
