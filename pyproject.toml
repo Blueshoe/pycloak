@@ -13,7 +13,7 @@ PyJWT = ">=2.4.0"
 cryptography = ">=36.0.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.12.1"
+black = "^24.1.1"
 flake8 = "^7.0.0"
 mypy = "^1.8.0"
 poethepoet = "^0.24.4"
