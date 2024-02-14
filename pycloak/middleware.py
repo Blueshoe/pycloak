@@ -97,10 +97,10 @@ class JWTMiddleware(MiddlewareMixin):
         if user:
             request.session[conf.SESSION_KEY] = id_from_token
             if request.user != user:
-                logger.info("Different user, logging out")
+                logger.debug("Different user, logging out")
                 logout(request)
             if not request.user.is_authenticated:
-                logger.info("Logging user in", user=str(user))
+                logger.debug("Logging user in", user=str(user))
                 login(request, user)
             else:  # the same user with a new token
                 request.user = (
