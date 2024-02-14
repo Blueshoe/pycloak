@@ -131,19 +131,37 @@ class JWTMiddleware(MiddlewareMixin):
     def get_algorithms(self, request) -> List[str]:
         return [conf.ALGORITHM]
 
+    def get_bearer_token(self, request) -> str:
+        """
+        Get the token from the Authorization header
+        depending on the configuration of the oauth2 proxy, this might be the jwt access_token or the id_token
+        """
+        try:
+            header_value = request.META["HTTP_AUTHORIZATION"]
+            auth_type, token = header_value.split(" ")
+            if auth_type != "Bearer":
+                return None
+        except (KeyError, ValueError, TypeError):
+            return None
+        return token
+
     def get_jwt_from_request(self, request) -> str:
         token_header = conf.TOKEN_HEADER
         header_value = request.META[token_header]
+        bearer_token = self.get_bearer_token(request)
         if token_header == "HTTP_AUTHORIZATION":
             logger.debug("Bearer token")
-            auth_type, jwt = header_value.split(" ")
-            if auth_type != "Bearer":
+            if bearer_token is None:
                 raise ValueError("No Bearer token")
+            jwt = bearer_token
+            id_token = None
         else:
             logger.debug("Header token")
             jwt = header_value
+            id_token = bearer_token  # might be None
         logger.debug("Raw token retrieved", raw_token=jwt)
         request.jwt = jwt
+        request.id_token = id_token
         return jwt
 
     def get_data_from_jwt(self, request, jwt) -> dict:
