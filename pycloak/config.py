@@ -18,6 +18,9 @@ class _PycloakConfiguration:
         "TOKENID_CLAIM": "jti",
         "SESSION_KEY": "_pycloak_token_id",
         "ISSUER": None,
+        "CLAIM_TO_USER_MAPPING": {},
+        "CLAIM_SKIP_MISSING": False,
+        "CLAIM_IGNORE_VALIDATION_ERROR": False,
     }
 
     def __getattr__(self, item):
