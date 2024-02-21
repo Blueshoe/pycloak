@@ -104,4 +104,18 @@ PYCLOAK_CLIENT_ID = "account"
 # any jwt["resource_access"][...]["roles"]
 PYCLOAK_STAFF_ROLES = []
 PYCLOAK_SUPERUSER_ROLES = []
+
+# mapping to store claim from token on user field, e.g.
+#
+# from somewhere import parse_birthdate
+# PYCLOAK_CLAIM_TO_USER_MAPPING = {
+#     "birthday": {"field": "profile.birth_date", "callback": parse_birthdate}
+# }
+#
+# will pass the value of claim "birthday" to parse_birthday and store the result on user.profile.birth_day field
+PYCLOAK_CLAIM_TO_USER_MAPPING = {}
+# if True, missing claims will be skipped and logged as a warning, otherwise an ImproperlyConfigured exception will be raised
+PYCLOAK_CLAIM_SKIP_MISSING = False
+# if True, validation errors will be skipped and logged as a warning, otherwise a ValueError will be raised
+PYCLOAK_CLAIM_IGNORE_VALIDATION_ERRORS = False
 ```

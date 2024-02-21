@@ -6,6 +6,7 @@ from typing import List
 
 from cryptography.hazmat.primitives import serialization
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
 from jwt import ExpiredSignatureError, InvalidTokenError, decode
@@ -106,6 +107,7 @@ class JWTMiddleware(MiddlewareMixin):
                 request.user = (
                     user  # be sure this is the updated object as per the new token
                 )
+            self.store_claim_on_user(request, user)
             return True
         else:
             logger.warning("No user found, no login")
@@ -184,3 +186,61 @@ class JWTMiddleware(MiddlewareMixin):
 
     def get_token_id(self, request, jwt_data) -> str:
         return jwt_data[conf.TOKENID_CLAIM]
+
+    def store_claim_on_user(self, request, user):
+        # store objects to save (user or related objects)
+        obj_to_save = set()
+
+        for claim, attr in conf.CLAIM_TO_USER_MAPPING.items():
+            if not attr.get("field"):
+                raise ImproperlyConfigured(
+                    f"PYCLOAK_CLAIM_TO_USER_MAPPING: {claim} has no field specified"
+                )
+
+            # check for related fields on the user model
+            rel_fields = attr["field"].split(".")
+            field = rel_fields.pop(0)
+            obj = user
+            for rel_field in rel_fields:
+                obj = getattr(obj, rel_field)
+            obj_to_save.add(obj)
+
+            # check for value
+            if value := request.jwt_data.get(claim) is None:
+                logger.warning(f"Claim {claim} not found in jwt")
+                if conf.PYCLOAK_CLAIM_SKIP_MISSING:
+                    continue
+                else:
+                    raise ImproperlyConfigured(f"Claim {claim} not found in jwt")
+
+            # check for callback method
+            if callback_fun := attr.get("callback"):
+                try:
+                    value = callback_fun(value)
+                except Exception as e:
+                    logger.exception(
+                        f"Callback {callback_fun} failed for claim {claim}",
+                        error=str(e),
+                    )
+                    raise ValueError(
+                        f"Callback {callback_fun} failed for claim {claim}"
+                    )
+
+            # explicitly validate value on field
+            # we do this, as we want to save all fields that we can if PYCLOAK_IGNORE_VALIDATION_ERROR is True
+            for obj_field in obj._meta.fields:
+                if field == obj_field.name:
+                    try:
+                        obj_field.get_prep_value(value)
+                        setattr(obj, field, value)
+                    except ValidationError as e:
+                        logger.warning(
+                            f"Validation error for claim {claim} on field {field}",
+                            error=str(e),
+                        )
+                        if not conf.PYCLOAK_CLAIM_IGNORE_VALIDATION_ERROR:
+                            raise e
+
+        # save the object(s) (user or related object)
+        for obj in obj_to_save:
+            obj.save()
