@@ -188,6 +188,9 @@ class JWTMiddleware(MiddlewareMixin):
         return jwt_data[conf.TOKENID_CLAIM]
 
     def store_claim_on_user(self, request, user):
+        # store objects to save (user or related objects)
+        obj_to_save = set()
+
         for claim, attr in conf.CLAIM_TO_USER_MAPPING.items():
             if not attr.get("field"):
                 raise ImproperlyConfigured(
@@ -200,6 +203,7 @@ class JWTMiddleware(MiddlewareMixin):
             obj = user
             for rel_field in rel_fields:
                 obj = getattr(obj, rel_field)
+            obj_to_save.add(obj)
 
             # check for value
             if value := request.jwt_data.get(claim) is None:
@@ -218,7 +222,7 @@ class JWTMiddleware(MiddlewareMixin):
                         f"Callback {callback_fun} failed for claim {claim}",
                         error=str(e),
                     )
-                    raise ImproperlyConfigured(
+                    raise ValueError(
                         f"Callback {callback_fun} failed for claim {claim}"
                     )
 
@@ -237,5 +241,6 @@ class JWTMiddleware(MiddlewareMixin):
                         if not conf.PYCLOAK_CLAIM_IGNORE_VALIDATION_ERROR:
                             raise e
 
-            # save the object (user or related object)
+        # save the object(s) (user or related object)
+        for obj in obj_to_save:
             obj.save()
