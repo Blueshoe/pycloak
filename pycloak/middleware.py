@@ -206,7 +206,8 @@ class JWTMiddleware(MiddlewareMixin):
             obj_to_save.add(obj)
 
             # check for value
-            if (value := request.jwt_data.get(claim)) is None:
+            value = request.jwt_data.get(claim)
+            if value is None:
                 logger.warning(f"Claim {claim} not found in jwt")
                 if conf.PYCLOAK_CLAIM_SKIP_MISSING:
                     continue
