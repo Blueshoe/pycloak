@@ -200,9 +200,13 @@ class JWTMiddleware(MiddlewareMixin):
             # check for related fields on the user model
             rel_fields = attr["field"].split(".")
             obj = user
-            field = None
-            for field in rel_fields:
-                obj = getattr(obj, field)
+            field = rel_fields.pop()
+            for rel_obj in rel_fields:
+                obj = getattr(obj, rel_obj)
+                if obj is None or not (hasattr(obj, "_meta") and hasattr(obj._meta, "fields")):
+                    raise ImproperlyConfigured(
+                        f"Related object {rel_obj} not found on user object or is not a model instance."
+                    )
             obj_to_save.add(obj)
 
             # check for value
