@@ -199,14 +199,15 @@ class JWTMiddleware(MiddlewareMixin):
 
             # check for related fields on the user model
             rel_fields = attr["field"].split(".")
-            field = rel_fields.pop(0)
             obj = user
-            for rel_field in rel_fields:
-                obj = getattr(obj, rel_field)
+            field = None
+            for field in rel_fields:
+                obj = getattr(obj, field)
             obj_to_save.add(obj)
 
             # check for value
-            if value := request.jwt_data.get(claim) is None:
+            value = request.jwt_data.get(claim)
+            if value is None:
                 logger.warning(f"Claim {claim} not found in jwt")
                 if conf.PYCLOAK_CLAIM_SKIP_MISSING:
                     continue
