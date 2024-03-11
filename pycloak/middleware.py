@@ -213,7 +213,7 @@ class JWTMiddleware(MiddlewareMixin):
             value = request.jwt_data.get(claim)
             if value is None:
                 logger.warning(f"Claim {claim} not found in jwt")
-                if conf.PYCLOAK_CLAIM_SKIP_MISSING:
+                if conf.CLAIM_SKIP_MISSING:
                     continue
                 else:
                     raise ImproperlyConfigured(f"Claim {claim} not found in jwt")
@@ -243,7 +243,7 @@ class JWTMiddleware(MiddlewareMixin):
                             f"Validation error for claim {claim} on field {field}",
                             error=str(e),
                         )
-                        if not conf.PYCLOAK_CLAIM_IGNORE_VALIDATION_ERROR:
+                        if not conf.CLAIM_IGNORE_VALIDATION_ERROR:
                             raise e
 
         # save the object(s) (user or related object)
