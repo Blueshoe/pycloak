@@ -7,7 +7,7 @@ from typing import List
 from cryptography.hazmat.primitives import serialization
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ImproperlyConfigured, ValidationError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.utils.deprecation import MiddlewareMixin
 from jwt import ExpiredSignatureError, InvalidTokenError, decode
 
@@ -31,7 +31,7 @@ class JWTMiddleware(MiddlewareMixin):
             if not self.allow_default_login(request):
                 return HttpResponse(status=UNAUTHORIZED)
 
-    def process_token(self, request) -> bool:
+    def process_token(self, request: HttpRequest) -> bool:
         """
         Return True if there is a logged in and authenticated user when this function returns
         """
@@ -52,7 +52,7 @@ class JWTMiddleware(MiddlewareMixin):
             # no token, but accept other options of authentication
             logger.warning("No jwt retrieved")
             request.session.pop(conf.SESSION_KEY, None)
-            return request.user.is_authenticated
+            return bool(request.user.is_authenticated)  # TODO: if this really always returns True, is this safe?
 
         # 2. get payload from jwt
         try:
@@ -128,12 +128,12 @@ class JWTMiddleware(MiddlewareMixin):
             return public_key
 
     def get_audience(self, request) -> str:
-        return conf.AUDIENCE
+        return str(conf.AUDIENCE)
 
     def get_algorithms(self, request) -> List[str]:
         return [conf.ALGORITHM]
 
-    def get_bearer_token(self, request) -> str:
+    def get_bearer_token(self, request) -> str | None:
         """
         Get the token from the Authorization header
         depending on the configuration of the oauth2 proxy, this might be the jwt access_token or the id_token
@@ -145,7 +145,7 @@ class JWTMiddleware(MiddlewareMixin):
                 return None
         except (KeyError, ValueError, TypeError):
             return None
-        return token
+        return str(token)
 
     def get_jwt_from_request(self, request) -> str:
         token_header = conf.TOKEN_HEADER
@@ -170,7 +170,7 @@ class JWTMiddleware(MiddlewareMixin):
         options = {
             "verify_signature": self.get_verify(request),
         }
-        data = decode(
+        data: dict = decode(
             jwt,
             algorithms=self.get_algorithms(request),
             key=self.get_public_key(request),
@@ -182,10 +182,10 @@ class JWTMiddleware(MiddlewareMixin):
         return data
 
     def allow_default_login(self, request) -> bool:
-        return conf.ALLOW_DEFAULT_LOGIN
+        return bool(conf.ALLOW_DEFAULT_LOGIN)
 
-    def get_token_id(self, request, jwt_data) -> str:
-        return jwt_data[conf.TOKENID_CLAIM]
+    def get_token_id(self, request, jwt_data: dict) -> str:
+        return str(jwt_data[conf.TOKENID_CLAIM])
 
     def store_claim_on_user(self, request, user):
         # store objects to save (user or related objects)

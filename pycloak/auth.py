@@ -1,5 +1,3 @@
-from typing import List
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
@@ -9,7 +7,9 @@ from .config import conf
 
 
 class JWTBackend(ModelBackend):
-    def authenticate(self, request, jwt_data: dict = None):
+    def authenticate(self, request, jwt_data: dict | None = None):
+        if jwt_data is None:
+            raise ValueError("jwt_data must be provided")
         # 1. get/create/update user
         username = self.get_username(request, jwt_data)
         is_staff = self.get_is_staff(request, jwt_data)
@@ -39,7 +39,7 @@ class JWTBackend(ModelBackend):
         user.groups.set(Group.objects.filter(name__in=token_roles))
 
     def get_username(self, request, jwt_data: dict) -> str:
-        return jwt_data[conf.USERNAME_CLAIM]
+        return str(jwt_data[conf.USERNAME_CLAIM])
 
     def get_email(self, request, jwt_data: dict) -> str:
         return jwt_data.get(conf.EMAIL_CLAIM, "") or ""
@@ -58,9 +58,10 @@ class JWTBackend(ModelBackend):
         token_roles = self.get_roles(request, jwt_data)
         return bool(set(conf.SUPERUSER_ROLES).intersection(token_roles))
 
-    def get_roles(self, request, jwt_data: dict) -> List[str]:
-        return self.get_realm_roles(request, jwt_data) + self.get_client_roles(
-            request, jwt_data
+    def get_roles(self, request, jwt_data: dict) -> list[str]:
+        return list(
+            self.get_realm_roles(request, jwt_data)
+            + self.get_client_roles(request, jwt_data)
         )
 
     def get_realm_roles(self, request, jwt_data: dict):
