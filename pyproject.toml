@@ -8,19 +8,19 @@ license = "Copyright"
 
 [tool.poetry.dependencies]
 python = ">3.11,<3.14"
-Django = ">=2.2"
-PyJWT = ">=2.4.0"
-cryptography = ">=36.0.1"
+cryptography = "^44.0.0"
+django = "<=4.2"
+pyjwt = "^2.10.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.12.1"
-flake8 = "^7.0.0"
-mypy = "^1.8.0"
-poethepoet = "^0.25.0"
-isort = "^5.13.2"
+isort = "^6.0.0"
+poethepoet = "^0.32.2"
+mypy = "^1.14.1"
+flake8 = "^7.1.1"
+black = "^25.1.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe]
