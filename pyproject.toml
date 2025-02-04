@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pycloak"
-version = "1.2.6"
+version = "1.2.7"
 description = "Utils around Keycloak and other OIDC clients."
 readme = "README.md"
 authors = ["Blueshoe GmbH"]
