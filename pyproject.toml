@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "pycloak"
-version = "1.2.9"
+version = "1.2.8"
 description = "Utils around Keycloak and other OIDC clients."
 readme = "README.md"
 authors = ["Blueshoe GmbH"]
 license = "Copyright"
 
 [tool.poetry.dependencies]
-python = "<3.14"
+python = ">=3.11,<3.14"
 cryptography = "^44.0.0"
-django = "<=4.2"
+django = "<5"
 pyjwt = "^2.10.1"
 
 [tool.poetry.group.dev.dependencies]
