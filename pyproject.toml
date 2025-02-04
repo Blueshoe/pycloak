@@ -7,7 +7,7 @@ authors = ["Blueshoe GmbH"]
 license = "Copyright"
 
 [tool.poetry.dependencies]
-python = ">3.11,<3.14"
+python = "<3.14"
 cryptography = "^44.0.0"
 django = "<=4.2"
 pyjwt = "^2.10.1"
