@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-_)s=7i1u=s%=*1vc#%!^(kmgg5_+5h0-xsjmh2#z3a^g99_n(8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list = []
 
 
 # Application definition
@@ -141,7 +141,7 @@ PYCLOAK_USERNAME_CLAIM = "preferred_username"
 PYCLOAK_FIRSTNAME_CLAIM = "given_name"
 PYCLOAK_LASTNAME_CLAIM = "family_name"
 PYCLOAK_EMAIL_CLAIM = "email"
-PYCLOAK_STAFF_ROLES = []
+PYCLOAK_STAFF_ROLES: list = []
 PYCLOAK_SUPERUSER_ROLES = ["uma_authorization"]
 PYCLOAK_TOKENID_CLAIM = "jti"
 PYCLOAK_SESSION_KEY = "_pycloak_token_id"
