@@ -2,7 +2,7 @@ from django.conf import settings
 
 
 class _PycloakConfiguration:
-    DEFAULTS = {
+    DEFAULTS: dict = {
         "ALGORITHM": None,
         "AUDIENCE": None,
         "PUBLIC_KEY": None,  # can be exported from keyclaok realm

@@ -139,7 +139,7 @@ class JWTMiddleware(MiddlewareMixin):
         depending on the configuration of the oauth2 proxy, this might be the jwt access_token or the id_token
         """
         try:
-            header_value = request.META["HTTP_AUTHORIZATION"]
+            header_value = request.headers["authorization"]
             auth_type, token = header_value.split(" ")
             if auth_type != "Bearer":
                 return None
@@ -203,7 +203,9 @@ class JWTMiddleware(MiddlewareMixin):
             field = rel_fields.pop()
             for rel_obj in rel_fields:
                 obj = getattr(obj, rel_obj)
-                if obj is None or not (hasattr(obj, "_meta") and hasattr(obj._meta, "fields")):
+                if obj is None or not (
+                    hasattr(obj, "_meta") and hasattr(obj._meta, "fields")
+                ):
                     raise ImproperlyConfigured(
                         f"Related object {rel_obj} not found on user object or is not a model instance."
                     )
